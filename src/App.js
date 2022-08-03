@@ -3,39 +3,68 @@ import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
-  constructor() { 
+  constructor() {
+    console.log('constructor'); 
     super();
 
     this.state = {
-      name: {firstName: 'Renato', lastName: 'Hernandez'},
-      company: 'ZTm'
+      monsters: [],
+      searchField: '',
     };
+  }
+  onSearchChange = (e) => {
+    const searchField = e.target.value.toLocaleLowerCase();
+    this.setState( () => {
+      return { searchField }
+    });
   }
 
   render() {
+    console.log('render');
+    const { monsters, searchField } = this.state;
+    const { onSearchChange } = this;
+    
+    const filteredMonsters = monsters.filter( (monster) => {
+      return monster.name.toLocaleLowerCase().includes(searchField);
+    })
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Hey {this.state.name.firstName} and I work at {this.state.company}!!
-          </p>
-          <button onClick={() => { 
-            // this.state.name = "Juan";
-            this.setState(
-              (previousState, props) => {
-                return {
-                  name: {firstName: 'Carlos Renato', lastName: 'Rivas'},
-                }
-              },
-              () => {
-                console.log(this.state);
-              })
-            
-          }}>Change</button> 
-        </header>
+        <input
+          className="search-box"
+          type="search"
+          placeholder="Search Monsters" 
+          onChange={ onSearchChange }/>
+
+        {
+          filteredMonsters.map( (monster) => {
+            return (
+              <div key={monster.id}>
+                <h1 >{monster.name}</h1>
+              </div>
+            )
+          })
+        }
       </div>
     );
+  }
+
+  componentDidMount() {
+    console.log('componentDidMount');
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => response.json())
+      .then((users) => {
+        console.log(users);
+        this.setState(
+          () => {
+            return {monsters: users}
+          },
+          () => {
+            console.log(this.state);
+          }
+        )
+        
+      })
   }
 }
 
